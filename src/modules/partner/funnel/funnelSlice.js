@@ -1,0 +1,115 @@
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {createToast, createToastLoading} from "../../../utils/toasts";
+import Http from "../../../services/http";
+
+const initialState = {
+    main: {},
+    mostDay: {},
+    mostHour: {},
+    meta: {},
+    channels: [],
+    epg: {}
+};
+
+let toastLoading = createToastLoading();
+
+export const fetchMain = createAsyncThunk(
+    "funnel/main",
+    async (body) => {
+        let {data} = await Http.post("admin/funnel", body);
+        // console.log(data);
+        return data;
+    })
+
+export const fetchEpg = createAsyncThunk(
+    "funnel/epg",
+    async (body) => {
+        let {data} = await Http.post("admin/epg", body);
+        // console.log(data);
+        return data;
+    })
+
+export const fetchChannels = createAsyncThunk(
+    "funnel/channels",
+    async () => {
+        let {data} = await Http.post("query", {sql: "SELECT channels_id as id , channels_name as channel from channels where channels_active =1 order by channels_name asc;"});
+        // console.log(data);
+        return data;
+    })
+
+let funnel = createSlice({
+    name: "funnel",
+    initialState,
+    reducers: {
+        concat: state => {
+            console.log(state);
+        },
+        alterState: (state, action) => {
+            const {prop, data} = action.payload;
+            state[prop] = data;
+        },
+        setMax: (state, action) => {
+            state.max = action.payload;
+        }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchMain.pending, (state) => {
+                toastLoading.fire({
+                    title: "Retrieving Data",
+                }).then(r => console.log("Toasted"))
+            })
+            .addCase(fetchMain.fulfilled, (state, action) => {
+                state.main = action.payload.data;
+                state.meta = action.payload.meta;
+                toastLoading.close();
+            })
+            .addCase(fetchMain.rejected, state => {
+                createToast().fire({
+                    title: "Could not fetch query",
+                    icon: "error"
+                }).then((e) => console.error("Toasted", e))
+            })
+            .addCase(fetchChannels.fulfilled, (state, action) => {
+                state.channels = action.payload;
+                toastLoading.close();
+            })
+            .addCase(fetchChannels.rejected, state => {
+                createToast().fire({
+                    title: "Could not fetch channels",
+                    icon: "error"
+                }).then((e) => console.error("Toasted", e))
+            })
+            .addCase(fetchEpg.fulfilled, (state, action) => {
+                state.epg = action.payload;
+                toastLoading.close();
+            })
+            .addCase(fetchEpg.rejected, state => {
+                createToast().fire({
+                    title: "Could not fetch epg",
+                    icon: "error"
+                }).then((e) => console.error("Toasted", e))
+            });
+    }
+});
+
+export const fetchData = (body, prop) => async (dispatch, getState) => {
+    try {
+        let {data} = await Http.post("admin/funnel", body);
+        dispatch(alterState({
+            data: data.data,
+            prop
+        }));
+    } catch (e) {
+        return {};
+    }
+};
+
+export const {alterState, concat, setMax} = funnel.actions;
+export const selectMain = (state) => state.funnel.main;
+export const selectEpg = (state) => state.funnel.epg;
+export const selectMeta = (state) => state.funnel.meta;
+export const selectMostDay = (state) => state.funnel.mostDay;
+export const selectMostHour = (state) => state.funnel.mostHour;
+export const selectChannels = (state) => state.funnel.channels;
+export default funnel.reducer;

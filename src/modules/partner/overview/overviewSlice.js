@@ -11,8 +11,8 @@ let toastLoading = createToastLoading();
 
 export const fetchRealtime = createAsyncThunk(
     "overview/realtime",
-    async () => {
-        let {data} = await Http.get("partner/realtime?list=1");
+    async (channels) => {
+        let {data} = await Http.post("admin/realtime?list=1", {channel: channels});
         // console.log(data);
         return data;
     })

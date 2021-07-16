@@ -1,4 +1,4 @@
-import React, {Fragment, useEffect} from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
 import _ from "lodash";
 import DateDiff from "date-diff"
 import PageHeader from "../../../layout/header/pageHeader";
@@ -10,42 +10,49 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {fetchDashBoard, fetchRealtime, selectRealtime} from "./overviewSlice";
 import classNames from "classnames";
 import {DateTime} from "luxon";
+import {getDateDifference} from "./overview-utils";
+import Timeline from "./timeline";
 
 
-const OverView = () => {
+const OverView = ({channels}) => {
     let user = useSelector(getUser);
     let dispatch = useDispatch();
     let realtime = useSelector(selectRealtime);
+    let [activeIndex, setIndex] = useState(0);
 
-    console.log(realtime);
+    let channelString = channels ? channels.map(a => a.value).join(",") : ""
+    console.log("Channels", channelString);
 
     useEffect(() => {
-        dispatch(fetchRealtime())
+        dispatch(fetchRealtime(channelString))
         dispatch(fetchDashBoard())
-    }, [])
+        setIndex(0)
+    }, [channelString])
 
     //EPG
     const {epg} = realtime;
-    let currentEpg = {};
+    let currentEpg = [];
     let okay = false;
     if (epg && Array.isArray(epg['current']) && epg["current"].length) {
-        let epgCurrentVar = epg['current'];
+        currentEpg = epg['current'].map(current => {
 
-        let startDateTime = DateTime.fromISO(epgCurrentVar[0]['start'], {setZone: true, zone: "utc"});
-        let now = DateTime.now().setZone("Africa/Kampala");
-        let endDateTime = DateTime.fromISO(epgCurrentVar[0]['end'], {zone: "utc", setZone: true});
+            let epg = {...current};
+            let startDateTime = DateTime.fromISO(epg['start'], {setZone: true, zone: "utc"});
+            let now = DateTime.now().setZone("Africa/Kampala");
+            let endDateTime = DateTime.fromISO(epg['end'], {zone: "utc", setZone: true});
 
-        console.log("Start", startDateTime.toSQL())
-        console.log("Now", now.toSQL())
-        console.log("End", endDateTime.toSQL())
+            console.log("Start", startDateTime.toSQL())
+            console.log("Now", now.toSQL())
+            console.log("End", endDateTime.toSQL())
 
-        currentEpg['start'] = startDateTime;
-        currentEpg['end'] = endDateTime;
-        currentEpg['duration'] = epgCurrentVar[0]['duration'];
-        currentEpg['title'] = epgCurrentVar[0]['title'];
-        currentEpg['used'] = new DateDiff(now.toJSDate(), startDateTime.minus({hours: 3}));
-        currentEpg['now'] = now;
-
+            epg['start'] = startDateTime;
+            epg['end'] = endDateTime;
+            epg['duration'] = epg['duration'];
+            epg['title'] = epg['title'];
+            epg['used'] = getDateDifference(now.toJSDate(), startDateTime.minus({hours: 3}).toJSDate());
+            epg['now'] = now;
+            return epg;
+        });
 
         console.log(currentEpg);
         okay = true;
@@ -54,10 +61,10 @@ const OverView = () => {
     return (
         <Fragment>
 
-            <PageHeader label={"Overview"} />
+            <PageHeader label={"Overview"}/>
 
             <div className={"row"}>
-                <div className="col-12 col-lg-6 col-xxl-4 d-flex">
+                <div className="col-12 col-lg-6 col-xxl-3 d-flex">
                     <div className="card illustration flex-fill">
                         <div className="card-body p-0 d-flex flex-fill">
                             <div className="row g-0 w-100">
@@ -84,16 +91,33 @@ const OverView = () => {
                     </div>
 
                 </div>
-                <div className="col-12 col-lg-6 col-xxl-4 d-flex">
+                <div className="col-12 col-lg-6 col-xxl-3 d-flex">
                     <div className={classNames("card flex-fill", {"shine": !okay})}>
                         <div className="card-body">
                             <div className="row">
-                                <div className="col mt-0">
-                                    <h5 className="card-title font-weight-bold">
-                                        {currentEpg.title ? currentEpg.title : "" +
-                                            ""}
-
-                                    </h5>
+                                <div className="col mt-0 scrollbar">
+                                    <ul className="nav nav-tabs p-0 m-0" id="myTab" role="tablist">
+                                        {!!channels && !!channels.length && channels.map(
+                                            (channel, index) => (
+                                                <li className="nav-item m-0 p-0" key={index}>
+                                                    <a className={classNames("nav-link text-dark", {active: index === activeIndex})}
+                                                       id="home-tab"
+                                                       onClick={(e) => {
+                                                           e.preventDefault();
+                                                           setIndex(index)
+                                                       }}
+                                                       data-bs-toggle="tab" role="tab"
+                                                    >
+                                                        <small>
+                                                            {
+                                                                channel.value
+                                                            }
+                                                        </small>
+                                                    </a>
+                                                </li>
+                                            )
+                                        )}
+                                    </ul>
                                 </div>
                                 <div className="col-auto" title={"Current Epg"}>
                                     <div className="stat stat-sm">
@@ -101,32 +125,49 @@ const OverView = () => {
                                     </div>
                                 </div>
                             </div>
-                            <span className={"badge badge-soft-primary"}>Start</span>
-                            <span className={"font-weight-bold"}>
-                                                {currentEpg.start ? currentEpg.start.toFormat("t") : ""}
-                                            </span>
-                            <div className="progress my-lg-4 my-2">
-                                {!!currentEpg.used &&
-                                <div
-                                    className="progress-bar progress-bar-striped progress-bar-animated text-center"
-                                    role="progressbar" aria-valuenow="75" aria-valuemin="0"
-                                    aria-valuemax="100"
-                                    style={{width: `${Math.round(currentEpg.used.seconds() / currentEpg.duration) * 100}%`}}>
-                                    {currentEpg.now ? currentEpg.now.toFormat("t") : ""}
-                                </div>
-                                }
+                            <div className="tab-content border-x border-bottom p-3" id="myTabContent">
 
-                            </div>
-                            <div className="mb-0 d-flex flex-row align-items-center justify-content-end">
-                                <span className={"badge badge-soft-primary"}>End</span>
-                                <span className={"font-weight-bold"}>
-                                                {currentEpg.end ? currentEpg.end.toFormat("t") : ""}
+                                {
+                                    currentEpg.map((value, index) => (
+                                        <Fragment>
+                                            <div
+                                                className={classNames("tab-pane fade", {"show active": index === activeIndex})}
+                                                role="tabpanel">
+                                                <h5 className="card-title font-weight-bold">
+                                                    {value.title ? value.title : ""}
+                                                </h5>
+                                                <span className={"badge badge-soft-primary"}>Start</span>
+                                                <span className={"font-weight-bold"}>
+                                                {value.start ? value.start.toFormat("t") : ""}
                                             </span>
+                                                <div className="progress my-lg-4 my-2">
+                                                    {!!value.used &&
+                                                    <div
+                                                        className="progress-bar progress-bar-striped progress-bar-animated text-center"
+                                                        role="progressbar" aria-valuenow="75" aria-valuemin="0"
+                                                        aria-valuemax="100"
+                                                        style={{width: `${(value.used / value.duration) * 100}%`}}>
+                                                        {value.now ? value.now.toFormat("t") : ""}
+                                                    </div>
+                                                    }
+
+                                                </div>
+                                                <div
+                                                    className="mb-0 d-flex flex-row align-items-center justify-content-end">
+                                                    <span className={"badge badge-soft-primary"}>End</span>
+                                                    <span className={"font-weight-bold"}>
+                                                       {value.end ? value.end.toFormat("t") : ""}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </Fragment>
+                                    ))
+                                }
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="col-12 col-lg-6 col-xxl-4 d-flex">
+                <div className="col-12 col-lg-6 col-xxl-3 d-flex">
                     <div className="card flex-fill">
                         <div className="card-body">
                             <div className="row">
@@ -152,7 +193,7 @@ const OverView = () => {
                         </div>
                     </div>
                 </div>
-                <div className="col-12 col-lg-6 col-xxl-4 d-flex">
+                <div className="col-12 col-lg-6 col-xxl-3 d-flex">
                     <div className={classNames("card flex-fill", {"shine": !okay})}>
                         <div className="card-body">
                             <div className="row">
@@ -168,8 +209,8 @@ const OverView = () => {
                                 </div>
                             </div>
                             <span className="h1 d-inline-block mt-1 mb-4">
-                                            {(epg && epg.count) ? epg.count.toLocaleString() : 0}
-                                        </span>
+                                 {(epg && epg.count) ? epg.count.toLocaleString() : 0}
+                            </span>
                             <div className="mb-0">
                                             <span className="badge badge-soft-danger me-2">
                                               <i className="mdi mdi-arrow-bottom-right"/> -1.25%
@@ -185,49 +226,11 @@ const OverView = () => {
                 <div className="col-xl-5 d-flex h-100">
                     <div className="card flex-fill w-100">
                         <div className="card-header">
-                            <div className="card-actions float-end">
-                                <div className="dropdown show">
-                                    <a
-                                        href="#"
-                                        data-bs-toggle="dropdown"
-                                        data-bs-display="static"
-                                    >
-                                        <FontAwesomeIcon
-                                            icon={faEllipsisH}
-                                            className="align-middle"
-                                        />
-                                    </a>
-
-                                    <div className="dropdown-menu dropdown-menu-end">
-                                        <a className="dropdown-item" href="#">Action</a>
-                                        <a className="dropdown-item" href="#">Another action</a>
-                                        <a className="dropdown-item" href="#"
-                                        >Something else here</a
-                                        >
-                                    </div>
-                                </div>
-                            </div>
                             <h5 className="card-title mb-0">Watching</h5>
                         </div>
-                        <div className="card-body">
-                            <ul className="timeline">
-                                <li className="timeline-item">
-                                    <strong>#3939</strong>
-                                    <span className="float-end text-muted text-sm">30m ago</span>
-                                    <div className="progress position-relative">
-                                        <div
-                                            className="progress-bar bg-primary-light current-epg-width position-absolute start-0 bottom-0 top-0 h-100"
-                                            role="progressbar"
-                                            style={{width: "45%"}}
-                                            aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"/>
-                                        <div
-                                            className="progress-bar bg-success position-absolute bottom-0 top-0 h-100"
-                                            role="progressbar"
-                                            style={{width: "35%", left: "5%"}}
-                                            aria-valuenow="30" aria-valuemin="0" aria-valuemax="100"/>
-                                    </div>
-                                </li>
-                            </ul>
+                        <div className={(classNames("card-body py-2 scrollbar", {"shine": !okay}))}
+                             style={{maxHeight: "20rem", height: "20rem"}}>
+                            {epg && epg.list && epg.list.map((item, index) => <Timeline {...item} key={index}/>)}
                         </div>
                     </div>
                 </div>

@@ -6,7 +6,7 @@ import CheckButton from "../common/checkButton";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFilter} from "@fortawesome/free-solid-svg-icons";
 
-const Panel = ({onSumbit: onSubmit}) => {
+const Panel = ({onSubmit}) => {
 
     const dispatch = useDispatch();
     const channels = useSelector(selectChannels);

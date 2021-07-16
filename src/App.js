@@ -51,7 +51,7 @@ function App() {
                                                 />
                                                 <Route
                                                     path={"/admin/overview"}
-                                                    render={(props) => <OverView {...props} />}
+                                                    render={(props) => <OverView {...props} channels={channels}/>}
                                                 />
                                                 <Route
                                                     path={"/admin/funnel"}
@@ -63,7 +63,7 @@ function App() {
                                     </main>
                                     <Footer/>
                                 </div>
-                                <Panel onSumbit={e => setChannels(e)}/>
+                                <Panel onSubmit={e => setChannels(e)}/>
                             </Fragment>
                         );
                     }}

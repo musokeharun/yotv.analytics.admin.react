@@ -25,10 +25,13 @@ axios.interceptors.request.use(config => {
 
 
 function setJwt(jwt) {
-    axios.defaults.headers.common["xchannel"] = jwt || "NTV";
+    axios.defaults.headers.common["xchannel"] = jwt || "";
 }
 
-setJwt(undefined)
+function setChannels(channels) {
+    axios.defaults.headers.common["xchannel"] = channels || "";
+}
+
 let Http = {
     get: axios.get,
     post: axios.post,

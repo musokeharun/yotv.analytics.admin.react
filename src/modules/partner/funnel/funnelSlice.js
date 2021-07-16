@@ -8,7 +8,8 @@ const initialState = {
     mostHour: {},
     meta: {},
     channels: [],
-    epg: {}
+    epg: {},
+    selectedChannels: ""
 };
 
 let toastLoading = createToastLoading();
@@ -50,6 +51,8 @@ let funnel = createSlice({
         },
         setMax: (state, action) => {
             state.max = action.payload;
+        }, setSelectedChannels: (state, action) => {
+            state.selectedChannels = action.payload;
         }
     },
     extraReducers: (builder) => {
@@ -112,4 +115,5 @@ export const selectMeta = (state) => state.funnel.meta;
 export const selectMostDay = (state) => state.funnel.mostDay;
 export const selectMostHour = (state) => state.funnel.mostHour;
 export const selectChannels = (state) => state.funnel.channels;
+export const getSelectedChannels = (state) => state.funnel.selectedChannels;
 export default funnel.reducer;

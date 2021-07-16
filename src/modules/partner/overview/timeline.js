@@ -30,7 +30,8 @@ const Timeline = ({isFinished, lastSecond, updated}) => {
     }
 
     return (
-        <div className="d-flex align-items-center position-relative mb-3">
+        <div className="d-flex align-items-center position-relative mb-3"
+             title={`Last Seen ${lastUpdateDate.toFormat("FFF")}`}>
             <div className="flex-1">
                 <h6 className="mb-0 fw-semi-bold">
                     <a className={`btn btn-${button}`}>
@@ -40,8 +41,8 @@ const Timeline = ({isFinished, lastSecond, updated}) => {
                 <p className="text-500 fs--2 mb-0">
                     {`Watched 
                     ${Math.abs(lastSecond / 3600).toFixed(0)} hours 
-                    ${Math.abs(lastSecond / 60).toFixed(0)} minutes
-                    ${Math.abs(lastSecond % 60).toFixed(0)} seconds.`}
+                    ${Math.abs((lastSecond % 3600) / 60).toFixed(0)} minutes
+                    ${Math.abs((lastSecond % 3600) % 60).toFixed(0)} seconds.`}
                 </p>
             </div>
         </div>

@@ -1,7 +1,8 @@
-import React, {Fragment, useState} from "react";
+import React, {Fragment, useEffect} from "react";
 import {HashRouter, Switch, Route, Redirect} from "react-router-dom";
+import "@popperjs/core/lib/popper";
 import "jquery/dist/jquery.min";
-import "popper.js/dist/popper.min";
+// import "popper.js/dist/popper.min";
 import "bootstrap/dist/js/bootstrap.bundle";
 import "./assets/light.css";
 import "./user.css";
@@ -10,24 +11,33 @@ import Sidebar from "./layout/sidebar";
 import TopBar from "./layout/topbar";
 import Footer from "./layout/footer";
 import Settings from "./pages/settings";
-import AdminLogin from "./modules/admin/login";
-import Funnel from "./modules/partner/funnel/funnel";
-import {useSelector} from "react-redux";
-import {getUser} from "./modules/partner/auth/authSlice";
-import OverView from "./modules/partner/overview/overView";
+import Funnel from "./modules/admin/funnel/funnel";
+import OverView from "./modules/admin/overview/overView";
 import "sweetalert2/dist/sweetalert2.min.css";
 import Panel from "./layout/panel";
+import Users from "./pages/users";
+import Partners from "./pages/partners";
+import PartnerLogin from "./modules/admin/auth/login";
+import {getCurrentUser} from "./services/user";
+import {fetchChannels, selectChannels} from "./modules/admin/funnel/funnelSlice";
+import {useDispatch, useSelector} from "react-redux";
+import Vod from "./modules/admin/vod";
 
 function App() {
-    const user = useSelector(getUser);
-    const [channels, setChannels] = useState(null);
+    let user = getCurrentUser();
+    const channels = useSelector(selectChannels);
+    const dispatch = useDispatch();
+
+    useEffect(() => dispatch(fetchChannels()), [])
+
+    console.log("User", user);
 
     return (
         <HashRouter>
             <Switch>
                 <Route
                     path={"/admin/login"}
-                    render={(props) => <AdminLogin {...props} />}
+                    render={(props) => <PartnerLogin {...props} />}
                 />
                 <Route
                     path={"/"}
@@ -57,13 +67,22 @@ function App() {
                                                     path={"/admin/funnel"}
                                                     render={(props) => <Funnel {...props} channels={channels}/>}
                                                 />
+                                                <Route
+                                                    path={"/users"}
+                                                    render={(props) => <Users {...props} channels={channels}/>}
+                                                />
+                                                <Route
+                                                    path={"/partners"}
+                                                    render={(props) => <Partners {...props}/>}
+                                                />
+                                                <Route path={"/vod"} render={(props) => <Vod {...props} />}/>
                                                 <Redirect to={"/admin/overview"}/>
                                             </Switch>
                                         </div>
                                     </main>
                                     <Footer/>
                                 </div>
-                                <Panel onSubmit={e => setChannels(e)}/>
+                                <Panel/>
                             </Fragment>
                         );
                     }}

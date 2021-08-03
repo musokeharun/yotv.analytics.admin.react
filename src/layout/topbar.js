@@ -8,11 +8,15 @@ import logo from "../assets/avatar.png";
 import Messages from "./header/messages";
 import Alerts from "./header/alerts";
 import {Link} from "react-router-dom";
+import _ from "lodash";
+import {getCurrentUser} from "../services/user";
 
 const Topbar = () => {
 
     const [search, setSearch] = useState("");
+    const user = getCurrentUser();
 
+    let userName = user.email.split("@")[0].toLowerCase();
     return (
         <nav className="navbar navbar-expand navbar-light navbar-bg">
             <a className="sidebar-toggle" onClick={e => {
@@ -33,38 +37,6 @@ const Topbar = () => {
                     </button>
                 </div>
             </form>
-
-            <ul className="navbar-nav">
-                <li className="nav-item px-2 dropdown">
-                    <a
-                        className="nav-link btn btn-primary btn-pill text-dark fw-bolder"
-                        role="button"
-                        data-bs-toggle="dropdown"
-                        aria-haspopup="true"
-                        aria-expanded="false"
-                        title={"Online Streams"}
-                    >
-                        23
-                    </a>
-                    <div
-                        className="dropdown-menu"
-                        aria-labelledby="servicesDropdown"
-                    >
-                        <div className="d-md-flex align-items-start justify-content-start">
-                            <div className="dropdown-mega-list">
-                                <a className="dropdown-item">
-                                    Live <span className="badge badge-soft-danger text-dark">10+</span>
-                                </a>
-                                <a className="dropdown-item" href="#">Catch Up</a>
-                            </div>
-                            <div className="dropdown-mega-list">
-                                <a className="dropdown-item" href="#">Rewind</a>
-                                <a className="dropdown-item" href="#">Recording</a>
-                            </div>
-                        </div>
-                    </div>
-                </li>
-            </ul>
 
             {/*RIGHT SECTION*/}
             <div className="navbar-collapse collapse">
@@ -95,9 +67,9 @@ const Topbar = () => {
                             <img
                                 src={logo}
                                 className="avatar img-fluid rounded-circle me-1"
-                                alt="Chris Wood"
+                                alt={_.capitalize(userName)}
                             />
-                            <span className="text-dark">Chris Wood</span>
+                            <span className="text-dark">{_.capitalize(userName)}</span>
                         </a>
                         <div className="dropdown-menu dropdown-menu-end">
                             <a className="dropdown-item">

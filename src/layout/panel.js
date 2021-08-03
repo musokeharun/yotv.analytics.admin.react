@@ -1,18 +1,15 @@
 import React, {Fragment, useEffect} from 'react';
 import $ from "jquery";
 import {useDispatch, useSelector} from "react-redux";
-import {fetchChannels, selectChannels} from "../modules/partner/funnel/funnelSlice";
+import {selectChannels, setSelectedChannels} from "../modules/admin/funnel/funnelSlice";
 import CheckButton from "../common/checkButton";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faFilter} from "@fortawesome/free-solid-svg-icons";
 
-const Panel = ({onSubmit}) => {
+const Panel = () => {
 
-    const dispatch = useDispatch();
     const channels = useSelector(selectChannels);
-
-    useEffect(() => dispatch(fetchChannels()), [])
-
+    const dispatch = useDispatch();
     const togglePanel = () => {
         $(".js-settings").toggleClass("open")
     }
@@ -37,7 +34,7 @@ const Panel = ({onSubmit}) => {
                             let serializeArray = $("#panel-form").serializeArray();
                             togglePanel();
                             console.log(serializeArray);
-                            !!onSubmit && onSubmit(serializeArray)
+                            dispatch(setSelectedChannels(serializeArray))
                         }}>
                             <div className="settings-title d-flex align-items-center">
                                 <button type="button" className="btn-close float-right" onClick={e => togglePanel()}
@@ -54,7 +51,7 @@ const Panel = ({onSubmit}) => {
                                     channels && !!channels.length && channels.map((channel, index) => {
                                         return <CheckButton
                                             key={index}
-                                            value={channel.id} label={channel.channel}
+                                            value={channel.id} label={channel.name}
                                             name={"channels"}
                                         />
                                     })

@@ -1,9 +1,7 @@
 import React, {Fragment, useEffect, useState} from 'react';
 import _ from "lodash";
-import DateDiff from "date-diff"
 import PageHeader from "../../../layout/header/pageHeader";
 import {useDispatch, useSelector} from "react-redux";
-import {getUser} from "../auth/authSlice";
 import welcome from "../../../assets/welcom.png";
 import {faArrowUp, faChartLine, faEllipsisH, faTv, faUserAlt} from "@fortawesome/free-solid-svg-icons";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
@@ -12,10 +10,11 @@ import classNames from "classnames";
 import {DateTime} from "luxon";
 import {getDateDifference} from "./overview-utils";
 import Timeline from "./timeline";
+import {getCurrentUser} from "../../../services/user";
 
 
 const OverView = ({channels}) => {
-    let user = useSelector(getUser);
+    let user = getCurrentUser();
     let dispatch = useDispatch();
     let realtime = useSelector(selectRealtime);
     let [activeIndex, setIndex] = useState(0);
@@ -71,12 +70,13 @@ const OverView = ({channels}) => {
                                 <div className="col-6">
                                     <div className="illustration-text p-3 m-1">
                                         <h6 className="illustration-text">
-                                            Welcome Back, {_.capitalize(user.name.toLowerCase())}!
+                                            Welcome Back, {_.capitalize(user.email.split("@")[0].toLowerCase())}!
                                         </h6>
-                                        <p className="mb-0">Console <span
-                                            className={"badge badge-soft-danger"}>
-                                                        YOTV
-                                                    </span></p>
+                                        <p className="mb-0">Console
+                                            <span className={"badge badge-soft-danger"}>
+                                                YOTV
+                                            </span>
+                                        </p>
                                     </div>
                                 </div>
                                 <div className="col-6 align-self-end text-end">

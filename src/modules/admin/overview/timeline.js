@@ -1,6 +1,4 @@
 import React from 'react';
-import avatar from "../../../assets/avatar.png";
-import classNames from "classnames";
 import {DateTime} from "luxon";
 
 const Timeline = ({isFinished, lastSecond, updated}) => {

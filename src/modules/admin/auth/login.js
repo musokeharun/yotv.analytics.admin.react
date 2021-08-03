@@ -1,35 +1,25 @@
 import React, {useState} from 'react';
 import logo from "../../../assets/logo.png";
 import Input from "../../../common/input";
-import {v1} from "uuid";
 import {useDispatch, useSelector} from "react-redux";
-import {getUser} from "./authSlice";
+import {getUser, login} from "./authSlice";
+import User from "../../../services/user";
 
-const PartnerLogin = () => {
+const PartnerLogin = ({history}) => {
 
     const user = useSelector(getUser);
     const dispatch = useDispatch()
 
-    const [name, setName] = useState("")
+    const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
-    const fileId = v1();
 
-    const submit = e => {
+    const handleSubmit = async e => {
         e.preventDefault();
+        let user = await User.login(email, password)
+        dispatch(login(user))
+        alert("Login Successful")
+        window.location.href = "/";
     }
-
-    const fileChange = e => {
-        let file = e.currentTarget.files[0];
-        if (!file) return;
-        const {name, type, size} = file;
-        if (type !== "text/plain") {
-            console.log("File not supported");
-            return;
-        }
-    }
-
-    console.log(user);
-
     return (
         <div className="main d-flex justify-content-center w-100">
             <main className="content d-flex p-0">
@@ -37,7 +27,7 @@ const PartnerLogin = () => {
 
                     <div className="row h-100">
                         <div className="col-sm-10 col-md-8 col-lg-6 mx-auto d-table h-100">
-                            <div className="d-table-cell align-middle">
+                            <div className="d-table-cell ">
                                 <div className="text-center mt-4">
                                     <h1 className="h2">Welcome back</h1>
                                     <p className="lead">Sign in to your account to continue</p>
@@ -49,23 +39,24 @@ const PartnerLogin = () => {
                                             <div className="text-center">
                                                 <img
                                                     src={logo}
-                                                    alt="Chris Wood"
+                                                    alt="Logo"
                                                     className="img-fluid rounded-circle"
                                                     width="132"
                                                     height="132"
                                                 />
                                             </div>
 
-                                            <form onSubmit={e => submit(e)}>
+                                            <form onSubmit={e => handleSubmit(e)}>
 
                                                 <Input
-                                                    name={"name"}
+                                                    name={"email"}
                                                     errors={""}
-                                                    label={"Username"}
-                                                    value={name}
+                                                    label={"Email"}
+                                                    value={email}
+                                                    type={"email"}
                                                     inputClass={"form-control-lg"}
-                                                    placeholder={"Enter your username"}
-                                                    onChange={e => setName(e.currentTarget.value)}/>
+                                                    placeholder={"Enter your email"}
+                                                    onChange={e => setEmail(e.currentTarget.value)}/>
 
                                                 <Input
                                                     name={"password"}
@@ -73,16 +64,8 @@ const PartnerLogin = () => {
                                                     label={"Password"}
                                                     value={password}
                                                     inputClass={"form-control-lg"}
-                                                    placeholder={"Enter your token"}
-                                                    onChange={e => setName(e.currentTarget.value)}/>
-
-                                                <label htmlFor={fileId}
-                                                       className={"form-label text-primary cursor-pointer"}>
-                                                    Upload file (.yotv.txt)
-                                                </label>
-                                                <input id={fileId} name={"file"} onChange={e => fileChange(e)}
-                                                       className={"d-none"} type={"file"}/>
-
+                                                    placeholder={"***"}
+                                                    onChange={e => setPassword(e.currentTarget.value)}/>
 
                                                 <div className="text-center mt-3">
                                                     <button type="submit" className="btn btn-lg btn-primary">Sign in
@@ -96,7 +79,6 @@ const PartnerLogin = () => {
                             </div>
                         </div>
                     </div>
-
                 </div>
             </main>
         </div>

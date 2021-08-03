@@ -33,8 +33,7 @@ export const fetchEpg = createAsyncThunk(
 export const fetchChannels = createAsyncThunk(
     "funnel/channels",
     async () => {
-        let {data} = await Http.post("query", {sql: "SELECT channels_id as id , channels_name as channel from channels where channels_active =1 order by channels_name asc;"});
-        // console.log(data);
+        let {data} = await Http.post("auth/list");
         return data;
     })
 
@@ -51,7 +50,8 @@ let funnel = createSlice({
         },
         setMax: (state, action) => {
             state.max = action.payload;
-        }, setSelectedChannels: (state, action) => {
+        },
+        setSelectedChannels: (state, action) => {
             state.selectedChannels = action.payload;
         }
     },
@@ -108,7 +108,7 @@ export const fetchData = (body, prop) => async (dispatch, getState) => {
     }
 };
 
-export const {alterState, concat, setMax} = funnel.actions;
+export const {alterState, concat, setMax,setSelectedChannels} = funnel.actions;
 export const selectMain = (state) => state.funnel.main;
 export const selectEpg = (state) => state.funnel.epg;
 export const selectMeta = (state) => state.funnel.meta;

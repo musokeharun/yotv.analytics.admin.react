@@ -133,7 +133,7 @@ const Users = () => {
                 </div>
 
                 <div style={{transition: "all 1s 0s ease"}}
-                     className={classNames("col-md-5", {"d-none": isNaN(parseInt(userId))})}>
+                     className={classNames("col-md-4", {"d-none": isNaN(parseInt(userId))})}>
                     <div className={"w-100 d-flex justify-content-around"}>
                         <span className={"h3"}>Add User</span>
                         <button className={"btn-close close btn"} onClick={e => setUserId(null)}/>

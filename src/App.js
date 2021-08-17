@@ -17,7 +17,7 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import Panel from "./layout/panel";
 import Users from "./pages/users";
 import Partners from "./pages/partners";
-import PartnerLogin from "./modules/admin/auth/login";
+import Login from "./modules/admin/auth/login";
 import {getCurrentUser} from "./services/user";
 import {fetchChannels, selectChannels} from "./modules/admin/funnel/funnelSlice";
 import {useDispatch, useSelector} from "react-redux";
@@ -28,8 +28,11 @@ function App() {
     const channels = useSelector(selectChannels);
     const dispatch = useDispatch();
 
-    useEffect(() => dispatch(fetchChannels()), [])
-
+    useEffect(() => {
+            if (user)
+                dispatch(fetchChannels())
+        },
+        [])
     console.log("User", user);
 
     return (
@@ -37,7 +40,7 @@ function App() {
             <Switch>
                 <Route
                     path={"/admin/login"}
-                    render={(props) => <PartnerLogin {...props} />}
+                    render={(props) => <Login {...props} />}
                 />
                 <Route
                     path={"/"}

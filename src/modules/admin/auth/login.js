@@ -5,7 +5,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {getUser, login} from "./authSlice";
 import User from "../../../services/user";
 
-const PartnerLogin = ({history}) => {
+const Login = ({history}) => {
 
     const user = useSelector(getUser);
     const dispatch = useDispatch()
@@ -16,6 +16,7 @@ const PartnerLogin = ({history}) => {
     const handleSubmit = async e => {
         e.preventDefault();
         let user = await User.login(email, password)
+        if (!user) return;
         dispatch(login(user))
         alert("Login Successful")
         window.location.href = "/";
@@ -62,6 +63,7 @@ const PartnerLogin = ({history}) => {
                                                     name={"password"}
                                                     errors={""}
                                                     label={"Password"}
+                                                    type={"password"}
                                                     value={password}
                                                     inputClass={"form-control-lg"}
                                                     placeholder={"***"}
@@ -85,4 +87,4 @@ const PartnerLogin = ({history}) => {
     );
 };
 
-export default PartnerLogin;
+export default Login;

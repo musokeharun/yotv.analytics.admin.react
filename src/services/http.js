@@ -31,11 +31,12 @@ axios.interceptors.response.use(null, error => {
 
 axios.interceptors.request.use(config => {
     config.baseURL = apiUrl;
+    config.headers = {...config.headers, "Access-Control-Allow-Origin": "*"}
     return config;
 }, error => Promise.reject(error));
 
 
-function setJwt(jwt, key = "x_admin_stats_token") {
+function setJwt(jwt, key = "x-admin-stats-token") {
     axios.defaults.headers['common'][key] = jwt || "";
 }
 

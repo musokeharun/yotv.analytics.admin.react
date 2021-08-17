@@ -14,6 +14,7 @@ export async function login(email, password) {
         http.setJwt(jwt);
         return jwtDecode(jwt);
     } catch (e) {
+        console.log("Error",e)
         return null;
     }
 

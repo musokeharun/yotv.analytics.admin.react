@@ -9,7 +9,7 @@ import Messages from "./header/messages";
 import Alerts from "./header/alerts";
 import {Link} from "react-router-dom";
 import _ from "lodash";
-import {getCurrentUser} from "../services/user";
+import {getCurrentUser, logout} from "../services/user";
 
 const Topbar = () => {
 
@@ -85,7 +85,11 @@ const Topbar = () => {
                                 Settings & Privacy
                             </Link>
                             <a className="dropdown-item" href="#">Help</a>
-                            <a className="dropdown-item" href="#">Sign out</a>
+                            <a className="dropdown-item" href="#" onClick={e => {
+                                e.preventDefault();
+                                logout();
+                                window.location.href = "/";
+                            }}>Sign out</a>
                         </div>
                     </li>
 
